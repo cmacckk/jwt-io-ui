@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.1
+## Created by: Qt User Interface Compiler version 6.5.3
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -14,34 +14,16 @@ from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform, QScreen, QAction)
+    QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QHBoxLayout,
     QLabel, QPlainTextEdit, QPushButton, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget, QMenu, QMenuBar, QMainWindow)
-from modules.jwt_encode import encode_jwt
-from modules.jwt_decode import decode_jwt
-from modules.verify_jwt import verify_signature
-from modules.secret_crack_ui import Ui_CrackForm
-import json
-import base64
+    QSpacerItem, QVBoxLayout, QWidget)
 
-class Ui_MainWindow(QMainWindow):
+class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        self.screen = QApplication.primaryScreen().geometry()
-        self.screen_width = self.screen.width()
-        self.screen_height = self.screen.height()
-
-        self.crackFormWindow = QWidget()
-        self.crackUI = Ui_CrackForm()
-        self.crackUI.setupUi(self.crackFormWindow)
-
-        MainWindow.resize(int(self.screen_width // 1.5),
-                    int(self.screen_height // 1.5))
-
-        self.window_center()
-        MainWindow.setWindowIcon(QIcon('./icon/jwt.ico'))
+        MainWindow.resize(1050, 754)
         self.verticalLayout_4 = QVBoxLayout(MainWindow)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.verticalLayout_4.setContentsMargins(-1, 9, -1, -1)
@@ -95,7 +77,6 @@ class Ui_MainWindow(QMainWindow):
 
         self.algorithmComboBox = QComboBox(MainWindow)
         self.algorithmComboBox.setObjectName(u"algorithmComboBox")
-        self.algorithmComboBox.addItem(u"HS256")
         sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
@@ -151,11 +132,6 @@ class Ui_MainWindow(QMainWindow):
         self.decodeButton.setObjectName(u"decodeButton")
 
         self.midVerticalLayout.addWidget(self.decodeButton)
-
-        self.crackButton = QPushButton(MainWindow)
-        self.crackButton.setObjectName(u"字典破解")
-
-        self.midVerticalLayout.addWidget(self.crackButton)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -300,9 +276,8 @@ class Ui_MainWindow(QMainWindow):
         self.algorithmLabel.setText(QCoreApplication.translate("MainWindow", u"Algorithm", None))
         self.algorithmComboBox.setCurrentText("")
         self.statusLabel.setText(QCoreApplication.translate("MainWindow", u"Signature Verified", None))
-        self.encodeButton.setText(QCoreApplication.translate("MainWindow", u"<<加密", None))
-        self.decodeButton.setText(QCoreApplication.translate("MainWindow", u"解密>>", None))
-        self.crackButton.setText(QCoreApplication.translate("MainWindow", u"字典破解", None))
+        self.encodeButton.setText(QCoreApplication.translate("MainWindow", u"\u52a0\u5bc6>>", None))
+        self.decodeButton.setText(QCoreApplication.translate("MainWindow", u"<<\u89e3\u5bc6", None))
         self.decodedLabel.setText(QCoreApplication.translate("MainWindow", u"Decoded", None))
         self.decodedExplainLabel.setText(QCoreApplication.translate("MainWindow", u"Payload and secret", None))
         self.headerLabel.setText(QCoreApplication.translate("MainWindow", u"Header", None))
@@ -312,61 +287,5 @@ class Ui_MainWindow(QMainWindow):
         self.signLabel.setText(QCoreApplication.translate("MainWindow", u"Verify Signature", None))
         self.verifySignButton.setText(QCoreApplication.translate("MainWindow", u"\u9a8c\u8bc1\u7b7e\u540d", None))
         self.base64CheckBox.setText(QCoreApplication.translate("MainWindow", u"secret base64 encode", None))
-        self.encodedPlainTextEdit.setPlainText("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXBvIjoiaHR0cHM6Ly9naXRodWIuY29tL2NtYWNja2svand0LWlvLXVpIn0.UH5WhICLgjyVGdQDNlM4ekydtLMJNsrsEXVXUq7vIbc")
-        self.decode()   # 先执行一次解密
-        self.decodeButton.clicked.connect(self.decode)
-        self.encodeButton.clicked.connect(self.encode)
-        self.verifySignButton.clicked.connect(self.verify)
-        self.crackButton.clicked.connect(self.crackFormWindow.show)
-
     # retranslateUi
 
-    def window_center(self):
-        """窗口居中
-        """
-        qt_rect = self.frameGeometry()
-        center_point = QScreen.availableGeometry(
-            QApplication.primaryScreen()).center()
-
-        qt_rect.moveCenter(center_point)
-        self.move(qt_rect.topLeft())
-
-    def decode(self):
-        """ jwt decode """
-        header, payload = decode_jwt(self.encodedPlainTextEdit.toPlainText().strip())
-        self.headerTextEdit.setPlainText(header)
-        self.payloadTextEdit.setPlainText(payload)
-        
-    def encode(self):
-        """ jwt encode """ 
-        header = json.loads(self.headerTextEdit.toPlainText().strip())
-        payload = json.loads(self.payloadTextEdit.toPlainText().strip())
-        algorithm = self.algorithmComboBox.currentText().strip()
-        secret = self.signTextEdit.toPlainText().strip()
-        if self.base64CheckBox.isChecked():
-            base64_secret = base64.b64encode(secret.encode()).decode('utf-8')
-            jwt_token = encode_jwt(payload, header, base64_secret, algorithm)
-        else:
-            jwt_token = encode_jwt(payload, header, secret, algorithm)
-        self.encodedPlainTextEdit.setPlainText(jwt_token)
-        
-    def verify(self):
-        """ jwt verify """
-        algorithm = self.algorithmComboBox.currentText().strip()
-        secret = self.signTextEdit.toPlainText().strip()
-        jwt_token = self.encodedPlainTextEdit.toPlainText().strip()
-        if self.base64CheckBox.isChecked():
-            base64_secret = base64.b64encode(secret.encode()).decode('utf-8')
-            if verify_signature(jwt_token, base64_secret, algorithm):
-                self.statusLabel.setText("Signature Verified")
-                self.statusLabel.setStyleSheet("color:green;font-weight:bold;")
-            else:
-                self.statusLabel.setText("Invalid Signature")
-                self.statusLabel.setStyleSheet("color:red;font-weight:bold;")
-        else:
-            if verify_signature(jwt_token, secret, algorithm):
-                self.statusLabel.setText("Signature Verified")
-                self.statusLabel.setStyleSheet("color:green;font-weight:bold;")
-            else:
-                self.statusLabel.setText("Invalid Signature")
-                self.statusLabel.setStyleSheet("color:red;font-weight:bold;")

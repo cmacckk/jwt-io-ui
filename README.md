@@ -21,3 +21,7 @@ python -m pip install -r requirments.txt
 ```bash
 pyinstaller -i .\icon\jwt.ico -w -F .\main.py .\main.spec
 ```
+
+因设置字体时设置为`Inconsolata LGC Nerd Font`，为避免显示问题，可下载安装`Inconsolata LGC Nerd Font`
+
+[Inconsolate LGC font](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/InconsolataLGC.zip)
